@@ -1,10 +1,15 @@
 """Quick integration test for all platform-infra endpoints."""
 import httpx
 import json
+import uuid
 
 BASE = "http://localhost:8200"
 
 def test():
+    # Use dynamic session IDs to avoid UniqueConstraint errors
+    session_1 = f"test-session-{uuid.uuid4()}"
+    session_bad = f"test-session-bad-{uuid.uuid4()}"
+
     # Test 1: Health
     r = httpx.get(f"{BASE}/health")
     assert r.status_code == 200
@@ -19,7 +24,7 @@ def test():
 
     # Test 3: Ingest interaction
     payload = {
-        "session_id": "test-session-001",
+        "session_id": session_1,
         "query": "What is my current account balance?",
         "steps": [
             {"step_index": 0, "thinking": "Verify account", "action_type": "tool_call",
@@ -45,7 +50,7 @@ def test():
 
     # Test 4: Ingest a LOW-quality interaction for RCA testing
     bad_payload = {
-        "session_id": "test-session-bad-001",
+        "session_id": session_bad,
         "query": "Process my refund for order #789",
         "steps": [
             {"step_index": 0, "thinking": "Look up order", "action_type": "tool_call",
@@ -71,9 +76,9 @@ def test():
     print(f"[PASS] GET /interactions/ — {len(r.json())} interactions")
 
     # Test 6: Get single interaction
-    r = httpx.get(f"{BASE}/interactions/test-session-001")
+    r = httpx.get(f"{BASE}/interactions/{session_1}")
     assert r.status_code == 200
-    print(f"[PASS] GET /interactions/test-session-001")
+    print(f"[PASS] GET /interactions/{session_1}")
 
     # Test 7: JRH evaluation (direct)
     r = httpx.post(f"{BASE}/evaluate/jrh/direct", json={
@@ -87,23 +92,23 @@ def test():
     print(f"[PASS] POST /evaluate/jrh/direct — composite={jrh['composite_score']} entropy={jrh['entropy']}")
 
     # Test 8: JRH evaluation (stored)
-    r = httpx.post(f"{BASE}/evaluate/jrh", json={"session_id": "test-session-001"})
+    r = httpx.post(f"{BASE}/evaluate/jrh", json={"session_id": session_1})
     assert r.status_code == 200
     print(f"[PASS] POST /evaluate/jrh — composite={r.json()['composite_score']}")
 
     # Test 9: G-Eval
-    r = httpx.post(f"{BASE}/evaluate/g-eval", json={"session_id": "test-session-001"})
+    r = httpx.post(f"{BASE}/evaluate/g-eval", json={"session_id": session_1})
     assert r.status_code == 200
     ge = r.json()
     print(f"[PASS] POST /evaluate/g-eval — quality={ge['composite_quality']}")
 
     # Test 10: Get verdicts
-    r = httpx.get(f"{BASE}/evaluate/verdicts/test-session-001")
+    r = httpx.get(f"{BASE}/evaluate/verdicts/{session_1}")
     assert r.status_code == 200
     print(f"[PASS] GET /evaluate/verdicts — {len(r.json()['verdicts'])} verdicts")
 
     # Test 11: RCA analysis
-    r = httpx.post(f"{BASE}/diagnostics/analyze", json={"session_id": "test-session-bad-001"})
+    r = httpx.post(f"{BASE}/diagnostics/analyze", json={"session_id": session_bad})
     assert r.status_code == 200
     rca = r.json()
     print(f"[PASS] POST /diagnostics/analyze — category={rca['primary_category']} severity={rca['primary_severity']}")
@@ -119,7 +124,7 @@ def test():
     print(f"[PASS] GET /metrics/dags — {len(r.json()['dags'])} DAGs")
 
     # Test 14: DAG validation
-    r = httpx.get(f"{BASE}/metrics/dag-validate/test-session-001?dag_name=billing_adjustment")
+    r = httpx.get(f"{BASE}/metrics/dag-validate/{session_1}?dag_name=billing_adjustment")
     assert r.status_code == 200
     dag = r.json()
     print(f"[PASS] GET /metrics/dag-validate — passed={dag['passed']} completeness={dag['path_completeness']}")

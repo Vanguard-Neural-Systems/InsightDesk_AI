@@ -79,6 +79,14 @@ class AgentExecutionState(BaseModel):
     steps: List[ThoughtStep] = Field(default_factory=list)
     tool_calls: List[ToolInvocation] = Field(default_factory=list)
     memory_tier_used: MemoryTier = MemoryTier.WORKING
+    generator_provider: str = Field(
+        default="mock", 
+        description="The LLM provider that generated this session (e.g., gemini, groq, nvidia)"
+    )
+    generator_model: str = Field(
+        default="deterministic", 
+        description="The specific model used"
+    )
     final_resolution: Optional[str] = Field(
         None,
         description="The agent's final answer or action summary",

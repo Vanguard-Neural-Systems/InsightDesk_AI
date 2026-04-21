@@ -33,13 +33,13 @@ class Settings(BaseSettings):
     )
 
     # ── Judge Model Endpoints (JRH) ─────────────────────────────────────────
-    JUDGE_OPENAI_API_KEY: Optional[str] = None
-    JUDGE_OPENAI_MODEL: str = "gpt-4o"
-    JUDGE_OPENAI_BASE_URL: str = "https://api.openai.com/v1"
+    JUDGE_NVIDIA_API_KEY: Optional[str] = None
+    JUDGE_NVIDIA_MODEL: str = "meta/llama-3.1-70b-instruct"
+    JUDGE_NVIDIA_BASE_URL: str = "https://integrate.api.nvidia.com/v1"
 
-    JUDGE_ANTHROPIC_API_KEY: Optional[str] = None
-    JUDGE_ANTHROPIC_MODEL: str = "claude-sonnet-4-20250514"
-    JUDGE_ANTHROPIC_BASE_URL: str = "https://api.anthropic.com/v1"
+    JUDGE_GROQ_API_KEY: Optional[str] = None
+    JUDGE_GROQ_MODEL: str = "llama3-70b-8192"
+    JUDGE_GROQ_BASE_URL: str = "https://api.groq.com/openai/v1"
 
     JUDGE_GEMINI_API_KEY: Optional[str] = None
     JUDGE_GEMINI_MODEL: str = "gemini-2.0-flash"

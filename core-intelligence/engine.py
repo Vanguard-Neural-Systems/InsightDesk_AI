@@ -34,6 +34,7 @@ from shared.schemas.reasoning import (
     ToolInvocation,
 )
 from mcp_client import MCPClientError, MCPRegistry
+from llm_provider import MultiProviderRouter
 
 logger = logging.getLogger("insightdesk.engine")
 
@@ -65,6 +66,7 @@ class ReasoningEngine:
     def __init__(self, mcp_registry: MCPRegistry) -> None:
         self.mcp = mcp_registry
         self._episodic_memory: List[Dict[str, Any]] = []
+        self.router = MultiProviderRouter()
 
     # ── Public API ───────────────────────────────────────────────────────────
 
@@ -74,7 +76,18 @@ class ReasoningEngine:
         returns a fully-traced execution state with the resolution.
         """
         session_id = str(uuid.uuid4())
-        state = AgentExecutionState(session_id=session_id, query=query)
+        
+        # Determine current model based on router config
+        provider = self.router.provider
+        model_map = {"gemini": "gemini-2.5-flash", "groq": "llama3-70b-8192", "nvidia": "meta/llama-3.1-70b-instruct"}
+        model = model_map.get(provider, "deterministic-mock")
+        
+        state = AgentExecutionState(
+            session_id=session_id, 
+            query=query,
+            generator_provider=provider,
+            generator_model=model
+        )
         t0 = time.perf_counter()
 
         logger.info("Session %s — resolving: %s", session_id, query)
@@ -166,25 +179,18 @@ class ReasoningEngine:
 
         # ─────────────────────────────────────────────────────────────────────
         # 🔌 LLM INTEGRATION POINT
-        # Replace this block with an actual call to Gemini 2.0 Flash or
-        # a local 32B/70B model running on Apple Silicon.
-        #
-        #   response = await llm.generate(
-        #       system=system_prompt,
-        #       user=user_context,
-        #       tools=available_tools,    # function-calling schema
-        #       response_format=ThoughtStep,
-        #   )
-        #
-        # The model should return a structured ThoughtStep with:
-        #   - thinking:     internal reasoning chain
-        #   - action_type:  tool_call | memory_update | response
-        #   - action_input: arguments for the chosen action
-        #   - confidence:   self-assessed confidence [0, 1]
+        # Calls the active LLM provider (Gemini or Groq) using the newly built
+        # MultiProviderRouter. If no keys are set, it falls back to the deterministic route.
         # ─────────────────────────────────────────────────────────────────────
 
-        # Placeholder: deterministic routing based on query analysis
-        thought = self._deterministic_route(state, step_idx, available_tools)
+        thought = await self.router.generate_thought(
+            system_prompt=system_prompt,
+            user_context=user_context,
+            tools=available_tools,
+            step_idx=step_idx,
+            state_query=state.query,
+            mock_fallback=lambda idx, t: self._deterministic_route(state, idx, t)
+        )
         return thought
 
     # ── ACT — Execute MCP Tool Calls ─────────────────────────────────────────

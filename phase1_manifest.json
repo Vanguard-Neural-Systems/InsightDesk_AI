@@ -1,0 +1,39 @@
+{
+  "version": "1.0",
+  "project_name": "InsightDesk AI",
+  "stage": "Phase 1: Core Intelligence Integration",
+  "dag_definitions": {
+    "billing_adjustment": {
+      "steps": [
+        "verify_account",
+        "fetch_invoice",
+        "apply_adjustment",
+        "confirm_balance"
+      ]
+    },
+    "subscription_cancellation": {
+      "steps": [
+        "verify_account",
+        "check_subscription",
+        "cancel_subscription"
+      ]
+    },
+    "notion_qa": {
+      "steps": [
+        "search_notion",
+        "synthesize_answer"
+      ]
+    },
+    "health_check": {
+      "steps": [
+        "sql_query"
+      ]
+    }
+  },
+  "capabilities": [
+    "ragless_reasoning",
+    "mcp_live_tools",
+    "self_healing",
+    "jrh_evaluation"
+  ]
+}

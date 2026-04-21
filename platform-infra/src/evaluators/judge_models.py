@@ -8,9 +8,9 @@
 #          response, ensuring objective, unbiased scoring.
 #
 # Providers:
-#   • OpenAI    (GPT-4o)
-#   • Anthropic (Claude 3.5 Sonnet)
-#   • Google    (Gemini 2.0 Flash)
+#   • NVIDIA NIM (Llama 3.1 70B)
+#   • Groq       (Llama 3 70B)
+#   • Google     (Gemini 2.0 Flash)
 # ──────────────────────────────────────────────────────────────────────────────
 
 from __future__ import annotations
@@ -224,22 +224,22 @@ class BaseJudge(abc.ABC):
             return {"reasoning": raw, "overall_score": 5.0, "confidence": 0.1}
 
 
-# ── OpenAI Judge ────────────────────────────────────────────────────────────
+# ── NVIDIA Judge ────────────────────────────────────────────────────────────
 
-class OpenAIJudge(BaseJudge):
-    """Judge powered by OpenAI (GPT-4o)."""
+class NvidiaJudge(BaseJudge):
+    """Judge powered by NVIDIA NIM (Llama 3.1 70B). Uses OpenAI-compatible SDK endpoint."""
 
-    provider = "openai"
+    provider = "nvidia"
 
     def __init__(self) -> None:
-        self.model = settings.JUDGE_OPENAI_MODEL
-        self._api_key = settings.JUDGE_OPENAI_API_KEY
-        self._base_url = settings.JUDGE_OPENAI_BASE_URL
+        self.model = settings.JUDGE_NVIDIA_MODEL
+        self._api_key = settings.JUDGE_NVIDIA_API_KEY
+        self._base_url = settings.JUDGE_NVIDIA_BASE_URL
 
     async def _call_model(self, system_prompt: str, user_prompt: str) -> str:
         if not self._api_key:
             return json.dumps({
-                "reasoning": "OpenAI API key not configured — returning mock score.",
+                "reasoning": "NVIDIA API key not configured — returning mock score.",
                 "coherence": 7, "consistency": 7, "fluency": 8, "relevance": 7,
                 "overall_score": 7.25, "confidence": 0.3,
             })
@@ -262,45 +262,42 @@ class OpenAIJudge(BaseJudge):
             return resp.json()["choices"][0]["message"]["content"]
 
 
-# ── Anthropic Judge ─────────────────────────────────────────────────────────
+# ── Groq Judge ─────────────────────────────────────────────────────────
 
-class AnthropicJudge(BaseJudge):
-    """Judge powered by Anthropic (Claude 3.5 Sonnet)."""
+class GroqJudge(BaseJudge):
+    """Judge powered by Groq (Llama 3 70B). Uses OpenAI-compatible SDK endpoint."""
 
-    provider = "anthropic"
+    provider = "groq"
 
     def __init__(self) -> None:
-        self.model = settings.JUDGE_ANTHROPIC_MODEL
-        self._api_key = settings.JUDGE_ANTHROPIC_API_KEY
-        self._base_url = settings.JUDGE_ANTHROPIC_BASE_URL
+        self.model = settings.JUDGE_GROQ_MODEL
+        self._api_key = settings.JUDGE_GROQ_API_KEY
+        self._base_url = settings.JUDGE_GROQ_BASE_URL
 
     async def _call_model(self, system_prompt: str, user_prompt: str) -> str:
         if not self._api_key:
             return json.dumps({
-                "reasoning": "Anthropic API key not configured — returning mock score.",
+                "reasoning": "Groq API key not configured — returning mock score.",
                 "coherence": 8, "consistency": 7, "fluency": 7, "relevance": 8,
                 "overall_score": 7.5, "confidence": 0.3,
             })
 
         async with httpx.AsyncClient(timeout=60.0) as client:
             resp = await client.post(
-                f"{self._base_url}/messages",
-                headers={
-                    "x-api-key": self._api_key,
-                    "anthropic-version": "2023-06-01",
-                    "content-type": "application/json",
-                },
+                f"{self._base_url}/chat/completions",
+                headers={"Authorization": f"Bearer {self._api_key}"},
                 json={
                     "model": self.model,
-                    "max_tokens": 2048,
-                    "system": system_prompt,
                     "messages": [
+                        {"role": "system", "content": system_prompt},
                         {"role": "user", "content": user_prompt},
                     ],
+                    "temperature": 0.1,
+                    "response_format": {"type": "json_object"},
                 },
             )
             resp.raise_for_status()
-            return resp.json()["content"][0]["text"]
+            return resp.json()["choices"][0]["message"]["content"]
 
 
 # ── Gemini Judge ────────────────────────────────────────────────────────────
@@ -351,4 +348,4 @@ class GeminiJudge(BaseJudge):
 
 def create_default_judges() -> List[BaseJudge]:
     """Instantiate the default 3-judge panel (one per provider)."""
-    return [OpenAIJudge(), AnthropicJudge(), GeminiJudge()]
+    return [NvidiaJudge(), GroqJudge(), GeminiJudge()]
