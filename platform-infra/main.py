@@ -86,11 +86,16 @@ async def lifespan(app: FastAPI):
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     _manifest_watcher = ManifestWatcher(project_root=project_root)
 
-    # Register callback to update DAGMetric on manifest changes
     def _on_manifest(filename, data):
         new_dags = data.get("dag_definitions", {})
-        for name, dag_def in new_dags.items():
-            dag.register_dag(name, dag_def)
+        for name, dag_info in new_dags.items():
+            steps = dag_info.get("steps", [])
+            parsed_dag = []
+            prev_node = None
+            for step in steps:
+                parsed_dag.append((step, [prev_node] if prev_node else []))
+                prev_node = step
+            dag.register_dag(name, parsed_dag)
 
     _manifest_watcher.on_manifest_change(_on_manifest)
 
@@ -135,7 +140,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*", "http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

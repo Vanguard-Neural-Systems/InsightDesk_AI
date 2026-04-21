@@ -96,6 +96,12 @@ class InteractionLog(Base):
     memory_tier_used: Mapped[str] = mapped_column(
         String(32), default="working",
     )
+    generator_provider: Mapped[str] = mapped_column(
+        String(32), default="mock",
+    )
+    generator_model: Mapped[str] = mapped_column(
+        String(64), default="deterministic",
+    )
     final_resolution: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
     autonomous_resolution: Mapped[bool] = mapped_column(
         Boolean, default=False, index=True,

@@ -30,6 +30,8 @@ class IngestRequest(BaseModel):
     steps: List[Dict[str, Any]] = Field(default_factory=list)
     tool_calls: List[Dict[str, Any]] = Field(default_factory=list)
     memory_tier_used: str = "working"
+    generator_provider: str = "mock"
+    generator_model: str = "deterministic"
     final_resolution: Optional[str] = None
     autonomous_resolution: bool = False
     accuracy_score: float = 0.0
@@ -72,6 +74,8 @@ async def ingest_interaction(
         steps=req.steps,
         tool_calls=req.tool_calls,
         memory_tier_used=req.memory_tier_used,
+        generator_provider=req.generator_provider,
+        generator_model=req.generator_model,
         final_resolution=req.final_resolution,
         autonomous_resolution=req.autonomous_resolution,
         accuracy_score=req.accuracy_score,

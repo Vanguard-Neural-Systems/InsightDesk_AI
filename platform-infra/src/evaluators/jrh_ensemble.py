@@ -86,24 +86,30 @@ class JRHEnsemble:
         thought_chain: List[Dict[str, Any]],
         final_resolution: str,
         tool_calls: List[Dict[str, Any]],
+        generator_provider: str = "mock",
     ) -> EnsembleResult:
         """
         Run the full JRH pipeline:
           1. Randomize position assignments
-          2. Execute all judges concurrently
+          2. Execute all judges concurrently (skipping the generator's provider)
           3. Compute Shannon entropy
           4. Determine if human calibration is needed
           5. Aggregate G-Eval sub-scores
         """
-        positions = list(range(len(self.judges)))
+        active_judges = [j for j in self.judges if j.provider != generator_provider]
+        if not active_judges:
+            logger.warning("All judges filtered out! Using mock score.")
+            return EnsembleResult(composite_score=5.0)
+
+        positions = list(range(len(active_judges)))
         random.shuffle(positions)
 
-        logger.info("JRH evaluation started — %d judges", len(self.judges))
+        logger.info("JRH evaluation started — %d judges (generator=%s)", len(active_judges), generator_provider)
 
         # Parallel evaluation
         tasks = [
             judge.evaluate(query, thought_chain, final_resolution, tool_calls)
-            for judge in self.judges
+            for judge in active_judges
         ]
         scores: List[JudgeScore] = await asyncio.gather(*tasks)
 

@@ -45,6 +45,7 @@ class EvalDirectRequest(BaseModel):
     thought_chain: List[Dict[str, Any]] = Field(default_factory=list)
     final_resolution: str = ""
     tool_calls: List[Dict[str, Any]] = Field(default_factory=list)
+    generator_provider: str = "mock"
 
 
 # ── JRH Endpoints ──────────────────────────────────────────────────────────
@@ -70,6 +71,7 @@ async def evaluate_jrh_by_session(
         thought_chain=interaction.steps or [],
         final_resolution=interaction.final_resolution or "",
         tool_calls=interaction.tool_calls or [],
+        generator_provider=interaction.generator_provider,
     )
 
     # Persist each judge's verdict
@@ -111,6 +113,7 @@ async def evaluate_jrh_direct(req: EvalDirectRequest):
         thought_chain=req.thought_chain,
         final_resolution=req.final_resolution,
         tool_calls=req.tool_calls,
+        generator_provider=req.generator_provider,
     )
     return result.to_dict()
 
