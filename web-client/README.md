@@ -1,32 +1,68 @@
-# Web Client
+# Web Client — InsightDesk AI Command Center
 
-**Lead**: Member 3 Lead
+> **Next.js 16 + Tailwind CSS** — Glassmorphic dark-mode dashboard for real-time Quality Orchestration.
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with `create-next-app`.
+## Features
 
-This module handles:
-- Real-time Multimodal Dashboard for MOS/WER analytics
-- Local AI Inference optimization for Apple M5 Pro (32B+ models)
-- Scenario Playground with noise injection tests
+| Page | Route | Description |
+|------|-------|-------------|
+| **Dashboard** | `/` | Live KPIs (accuracy, latency, hallucination), 7-day trends, recent interactions |
+| **Voice Intelligence** | `/voice` | WebRTC session controls, TTFA gauge, audio waveform visualizer |
+| **QA Playground** | `/qa-playground` | Noise injection engine (55–65 dB), affirmation cue injector, stress test results |
+| **Diagnostics & RCA** | `/diagnostics` | Reasoning trace view, root cause analysis, JRH 3-judge verdict panel |
+| **Self-Healing** | `/healing` | Test journey registry, visual healing maps, drift patch visualization |
+| **Inference Hub** | `/inference` | Hardware detection, tokens/sec monitoring, model roster, cloud savings |
 
-## 2026 Performance Benchmarks
-This frontend application must meet the global system performance criteria:
-- **Accuracy**: 98% (Analytics and inference representation)
-- **Latency**: <300ms (End-to-end user latency for dashboard updates)
-- **Throughput**: Local 42-50 t/s (Local inference on Apple M5 Pro)
+## Architecture
 
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```
+src/
+├── app/                    ← Next.js App Router pages
+│   ├── page.tsx            ← Dashboard
+│   ├── voice/page.tsx      ← Voice Intelligence
+│   ├── qa-playground/      ← Acoustic QA Playground
+│   ├── diagnostics/        ← Diagnostics & RCA
+│   ├── healing/            ← Self-Healing Engine
+│   └── inference/          ← Local Inference Hub
+├── components/
+│   ├── ui/                 ← Sidebar, MetricCard, StatusBadge
+│   ├── voice-dashboard/    ← TTFAGauge, AudioVisualizer, WebRTCControls
+│   ├── qa-playground/      ← NoiseInjector, AffirmationCues, StressResults
+│   └── diagnostics/        ← TraceView, RCADetail, HealingMap, JRHVerdictPanel
+├── hooks/
+│   ├── use-api.ts          ← Generic API hook with retry + polling
+│   └── local-inference/    ← useHardwareDetect, useInferenceStatus
+└── lib/
+    ├── api-client.ts       ← Unified dual-backend API client
+    └── types/              ← TypeScript mirrors of shared/schemas/
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Design System
+
+- **Background**: Deep navy (`#0a0e1a`) with animated mesh gradient orbs
+- **Cards**: Frosted glass with `backdrop-blur(16px)` and subtle border glow
+- **Accents**: Electric Cyan (`#00f0ff`), Vivid Violet (`#a855f7`), Neon Green (`#22d3ee`)
+- **Typography**: Inter (UI) + JetBrains Mono (metrics/code)
+
+## 2026 Performance Targets
+
+| Metric | Target |
+|--------|--------|
+| Accuracy display fidelity | 98% representation |
+| Dashboard update latency | < 300ms |
+| Local inference throughput | 42–50 t/s (M5 Pro) |
+
+## Quick Start
+
+```bash
+npm install
+npm run dev     # → http://localhost:3000
+```
+
+## Backend Dependencies
+
+The frontend expects two services running:
+- **Core Intelligence**: `http://localhost:8000` (Reasoning, Voice, Healing)
+- **Platform Infrastructure**: `http://localhost:8001` (Evaluation, Diagnostics, Metrics)
+
+Set via env vars `NEXT_PUBLIC_CORE_INTELLIGENCE_URL` and `NEXT_PUBLIC_PLATFORM_INFRA_URL`.

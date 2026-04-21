@@ -70,10 +70,10 @@ platform-infra/
 ```bash
 cd platform-infra
 pip install -r requirements.txt
-uvicorn main:app --host 0.0.0.0 --port 8200 --reload
+uvicorn main:app --host 0.0.0.0 --port 8001 --reload
 ```
 
-API docs: `http://localhost:8200/docs`
+API docs: `http://localhost:8001/docs`
 
 ## Schema Synchronization
 
