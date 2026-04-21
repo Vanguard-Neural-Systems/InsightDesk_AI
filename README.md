@@ -5,6 +5,7 @@
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)](https://python.org)
 [![Next.js](https://img.shields.io/badge/Next.js-16-000000?logo=next.js&logoColor=white)](https://nextjs.org)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
+[![Netlify Status](https://img.shields.io/badge/Netlify-Ready-00C7B7?logo=netlify&logoColor=white)](https://netlify.com)
 
 ---
 
@@ -85,6 +86,31 @@ npm run dev
 ```bash
 python test_live_reasoning.py
 ```
+
+## 🚀 Cloud Deployment Guide (GitHub to Netlify)
+
+InsightDesk AI is a full-stack platform. While the highly interactive **Web Client (Next.js)** is perfectly suited for edge deployment on Netlify, the **Python AI Engines** (`core-intelligence` and `platform-infra`) must be hosted on platforms that support long-running processes (like Render, Railway, or AWS EC2).
+
+### Step 1: Deploy Python Backends (Render / Railway)
+1. Deploy `core-intelligence` and `platform-infra` as separate Web Services on Render or Railway.
+2. Ensure you set your `GEMINI_API_KEY` and other LLM keys in their respective environments.
+3. Note down their public URLs (e.g., `https://insightdesk-core.onrender.com`).
+
+### Step 2: Deploy Next.js Frontend to Netlify
+
+The repository is pre-configured with a `netlify.toml` file to automatically build the `web-client` subfolder.
+
+1. **Push your code to GitHub**: Ensure this entire repository is pushed to a GitHub repository.
+2. **Log into Netlify**: Go to [Netlify](https://app.netlify.com) and click **"Add new site" > "Import an existing project"**.
+3. **Connect GitHub**: Authorize GitHub and select your `InsightDesk_AI` repository.
+4. **Configure Build Settings**: Netlify will automatically detect the `netlify.toml` file. Confirm the following settings:
+   - **Base directory**: `web-client`
+   - **Build command**: `npm run build`
+   - **Publish directory**: `web-client/.next`
+5. **Set Environment Variables**: Click on "Add environment variables" and inject the public URLs of your Python backends:
+   - `NEXT_PUBLIC_CORE_INTELLIGENCE_URL` = `https://<your-core-backend-url>`
+   - `NEXT_PUBLIC_PLATFORM_INFRA_URL` = `https://<your-infra-backend-url>`
+6. **Deploy**: Click **"Deploy site"**. Netlify will build the Next.js Turbopack and deploy it globally to their edge network!
 
 ## Service Ports
 

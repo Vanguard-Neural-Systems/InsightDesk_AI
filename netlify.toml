@@ -1,0 +1,16 @@
+[build]
+  # Tell Netlify that the Next.js app is located in the web-client subdirectory
+  base = "web-client"
+  command = "npm run build"
+  publish = ".next"
+
+# The Netlify Next.js plugin auto-configures API routes and server-side rendering
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build.environment]
+  # These variables should be set in the Netlify Dashboard, not here, but listing them 
+  # here serves as documentation for what is expected.
+  # NEXT_PUBLIC_CORE_INTELLIGENCE_URL = "https://your-core-backend.com"
+  # NEXT_PUBLIC_PLATFORM_INFRA_URL = "https://your-infra-backend.com"
+  NODE_VERSION = "20"
