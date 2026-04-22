@@ -143,6 +143,12 @@ class VoiceHandler:
         answer_desc = await pc.createAnswer()
         await pc.setLocalDescription(answer_desc)
 
+        # Wait for ICE gathering to complete to ensure candidates are included
+        timeout = 5.0
+        start_wait = time.perf_counter()
+        while pc.iceGatheringState != 'complete' and (time.perf_counter() - start_wait) < timeout:
+            await asyncio.sleep(0.01)
+
         ctx.voice_session.status = SessionStatus.NEGOTIATING
 
         sdp_answer = SDPAnswer(
@@ -169,9 +175,13 @@ class VoiceHandler:
         if not ctx:
             raise ValueError(f"Session {session_id} not found")
 
-        from aiortc import RTCIceCandidate
-        # Parse the candidate string — aiortc handles the rest
-        await ctx.pc.addIceCandidate(candidate.candidate)
+        from aiortc.sdp import candidate_from_sdp
+        # Parse the candidate string and apply SDP context
+        rtc_candidate = candidate_from_sdp(candidate.candidate)
+        rtc_candidate.sdpMid = candidate.sdpMid
+        rtc_candidate.sdpMLineIndex = candidate.sdpMLineIndex
+        
+        await ctx.pc.addIceCandidate(rtc_candidate)
         logger.debug("Session %s — ICE candidate added", session_id)
 
     # ── Audio Processing Pipeline ────────────────────────────────────────────
