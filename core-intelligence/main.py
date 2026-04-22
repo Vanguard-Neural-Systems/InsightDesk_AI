@@ -38,7 +38,13 @@ from schemas.self_healing import (
 from engine import ReasoningEngine
 from mcp_client import MCPClient, MCPRegistry
 from self_healing import SelfHealingEngine
-from voice_handler import VoiceHandler
+try:
+    from voice_handler import VoiceHandler
+    _VOICE_AVAILABLE = True
+except ImportError:
+    VoiceHandler = None
+    _VOICE_AVAILABLE = False
+    logging.getLogger("insightdesk.main").warning("aiortc not installed — Voice module disabled")
 
 # ── Logging ──────────────────────────────────────────────────────────────────
 logging.basicConfig(
@@ -99,7 +105,10 @@ async def lifespan(app: FastAPI):
 
     # ── Initialize engines ───────────────────────────────────────────────
     reasoning_engine = ReasoningEngine(mcp_registry=mcp_registry)
-    voice_handler = VoiceHandler()
+    if _VOICE_AVAILABLE:
+        voice_handler = VoiceHandler()
+    else:
+        logger.warning("Voice handler skipped (aiortc not available)")
 
     logger.info("══════════════════════════════════════════════════════════")
     logger.info("  InsightDesk AI — Core Intelligence Service ONLINE")
