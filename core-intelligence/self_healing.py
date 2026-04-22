@@ -25,9 +25,9 @@ from typing import Any, Dict, List, Optional, Tuple
 
 # ── Resolve imports ──────────────────────────────────────────────────────────
 import sys, os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-from shared.schemas.self_healing import (
+from schemas.self_healing import (
     DriftType,
     ElementFingerprint,
     ElementType,

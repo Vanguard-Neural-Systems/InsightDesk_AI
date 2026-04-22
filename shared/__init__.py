@@ -1,1 +1,0 @@
-# InsightDesk AI — Shared Package

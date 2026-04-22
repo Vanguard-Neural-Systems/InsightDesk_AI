@@ -34,9 +34,9 @@ from aiortc.contrib.media import MediaRelay
 
 # ── Resolve imports ──────────────────────────────────────────────────────────
 import sys, os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-from shared.schemas.voice import (
+from schemas.voice import (
     AudioChunk,
     ICECandidate,
     SDPAnswer,

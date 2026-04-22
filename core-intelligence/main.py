@@ -22,12 +22,12 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ── Resolve imports ──────────────────────────────────────────────────────────
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-from shared.schemas.mcp import CallToolResult
-from shared.schemas.reasoning import AgentExecutionState
-from shared.schemas.voice import ICECandidate, SDPAnswer, SDPOffer, VoiceSession
-from shared.schemas.self_healing import (
+from schemas.mcp import CallToolResult
+from schemas.reasoning import AgentExecutionState
+from schemas.voice import ICECandidate, SDPAnswer, SDPOffer, VoiceSession
+from schemas.self_healing import (
     ElementFingerprint,
     HealingReport,
     TestJourney,

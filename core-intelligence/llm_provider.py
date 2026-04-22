@@ -15,7 +15,7 @@ from google import genai
 from google.genai import types as genai_types
 from groq import Groq
 
-from shared.schemas.reasoning import ActionType, ThoughtStep
+from schemas.reasoning import ActionType, ThoughtStep
 
 logger = logging.getLogger("insightdesk.engine.llm")
 

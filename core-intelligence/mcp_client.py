@@ -17,9 +17,9 @@ import httpx
 
 # ── Resolve imports from shared schemas (single source of truth) ─────────────
 import sys, os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 
-from shared.schemas.mcp import (
+from schemas.mcp import (
     CallToolRequest,
     CallToolResult,
     ContentBlock,
