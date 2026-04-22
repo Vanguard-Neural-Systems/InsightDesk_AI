@@ -11,6 +11,8 @@ from __future__ import annotations
 import logging
 import os
 import sys
+import threading
+import time
 from contextlib import asynccontextmanager
 from typing import Any, Dict, List, Optional
 
@@ -60,10 +62,27 @@ async def lifespan(app: FastAPI):
     """Application lifespan — initialize MCP connections and engine modules."""
     global reasoning_engine, voice_handler
 
-    # ── Register MCP servers (configure via env vars in production) ───────
+    # ── Start embedded Mock MCP Server (runs in a background thread) ─────
     mcp_url = os.getenv("MCP_SERVER_URL", "http://localhost:8100")
     mcp_key = os.getenv("MCP_API_KEY")
 
+    if "localhost" in mcp_url or "127.0.0.1" in mcp_url:
+        try:
+            mcp_port = int(mcp_url.rsplit(":", 1)[-1].strip("/"))
+        except ValueError:
+            mcp_port = 8100
+        from mock_mcp_server import start_mock_server
+        mcp_thread = threading.Thread(
+            target=start_mock_server,
+            args=(mcp_port,),
+            daemon=True,
+            name="mock-mcp-server",
+        )
+        mcp_thread.start()
+        time.sleep(1.5)  # Allow the server to bind before connecting
+        logger.info("Mock MCP Server started on port %d (background thread)", mcp_port)
+
+    # ── Register MCP servers ─────────────────────────────────────────────
     mcp_registry.register(
         MCPClient(
             server_url=mcp_url,
