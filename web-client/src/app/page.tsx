@@ -107,13 +107,13 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <MetricCard
           title="Resolution Rate"
-          value={d ? Math.round(d.resolution_rate * 100) : 0}
+          value={d ? Math.round(d.resolution_rate.value * 100) : 0}
           unit="%"
           status={
             d
-              ? d.resolution_rate >= 0.8
+              ? d.resolution_rate.value >= 0.8
                 ? "healthy"
-                : d.resolution_rate >= 0.6
+                : d.resolution_rate.value >= 0.6
                 ? "warning"
                 : "critical"
               : "neutral"
@@ -124,13 +124,13 @@ export default function DashboardPage() {
         />
         <MetricCard
           title="Accuracy"
-          value={d ? (d.avg_accuracy * 100).toFixed(1) : "0"}
+          value={d ? (d.accuracy.avg_score * 100).toFixed(1) : "0"}
           unit="%"
           status={
             d
-              ? d.avg_accuracy >= 0.98
+              ? d.accuracy.avg_score >= 0.98
                 ? "healthy"
-                : d.avg_accuracy >= 0.9
+                : d.accuracy.avg_score >= 0.9
                 ? "warning"
                 : "critical"
               : "neutral"
@@ -141,13 +141,13 @@ export default function DashboardPage() {
         />
         <MetricCard
           title="Hallucination Index"
-          value={d ? (d.hallucination_rate * 100).toFixed(2) : "0"}
+          value={d ? (d.hallucination_index.value * 100).toFixed(2) : "0"}
           unit="%"
           status={
             d
-              ? d.hallucination_rate <= 0.02
+              ? d.hallucination_index.value <= 0.02
                 ? "healthy"
-                : d.hallucination_rate <= 0.05
+                : d.hallucination_index.value <= 0.05
                 ? "warning"
                 : "critical"
               : "neutral"
@@ -158,13 +158,13 @@ export default function DashboardPage() {
         />
         <MetricCard
           title="Avg Latency"
-          value={d ? Math.round(d.avg_latency_ms) : 0}
+          value={d ? Math.round(d.latency.avg_ms) : 0}
           unit="ms"
           status={
             d
-              ? d.avg_latency_ms <= 300
+              ? d.latency.avg_ms <= 300
                 ? "healthy"
-                : d.avg_latency_ms <= 500
+                : d.latency.avg_ms <= 500
                 ? "warning"
                 : "critical"
               : "neutral"
@@ -175,11 +175,11 @@ export default function DashboardPage() {
         />
         <MetricCard
           title="JRH Agreement"
-          value={d?.avg_jrh_score ? (d.avg_jrh_score * 100).toFixed(1) : "N/A"}
-          unit={d?.avg_jrh_score ? "%" : ""}
+          value={d?.jrh.agreement_rate ? (d.jrh.agreement_rate * 100).toFixed(1) : "N/A"}
+          unit={d?.jrh.agreement_rate ? "%" : ""}
           status={
-            d?.avg_jrh_score
-              ? d.avg_jrh_score >= 0.85
+            d?.jrh.agreement_rate
+              ? d.jrh.agreement_rate >= 0.85
                 ? "healthy"
                 : "warning"
               : "neutral"

@@ -72,6 +72,7 @@ export interface InteractionDetail {
 export interface RCATrace {
   id: number;
   interaction_id: number;
+  session_id?: string | null;
   failure_category: string;
   severity: string;
   failed_step_index?: number | null;
@@ -83,12 +84,39 @@ export interface RCATrace {
 }
 
 export interface DashboardMetrics {
+  window_hours: number;
+  period_start: string;
+  period_end: string;
   total_interactions: number;
-  avg_accuracy: number;
-  avg_latency_ms: number;
-  resolution_rate: number;
-  hallucination_rate: number;
-  avg_jrh_score: number | null;
+  resolution_rate: {
+    value: number;
+    target: number;
+    meets_sla: boolean;
+  };
+  accuracy: {
+    avg_score: number;
+    target: number;
+    meets_sla: boolean;
+  };
+  hallucination_index: {
+    value: number;
+    count: number;
+    target: number;
+    meets_sla: boolean;
+  };
+  latency: {
+    avg_ms: number;
+    target_ms: number;
+    meets_sla: boolean;
+  };
+  jrh: {
+    agreement_rate: number;
+    calibration_needed_count: number;
+  };
+  sla_summary: {
+    all_met: boolean;
+    violations: Array<Record<string, unknown>>;
+  };
 }
 
 export interface TrendDataPoint {

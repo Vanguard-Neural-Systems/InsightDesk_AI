@@ -282,8 +282,11 @@ async def list_rca_traces(
     if severity:
         conditions.append(RCATrace.severity == severity)
 
+    from sqlalchemy.orm import selectinload
+
     stmt = (
         select(RCATrace)
+        .options(selectinload(RCATrace.interaction))
         .where(and_(*conditions) if conditions else True)
         .order_by(RCATrace.created_at.desc())
         .limit(limit)

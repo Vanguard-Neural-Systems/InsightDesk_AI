@@ -100,6 +100,7 @@ async def list_traces(
         {
             "id": t.id,
             "interaction_id": t.interaction_id,
+            "session_id": t.interaction.session_id if t.interaction else None,
             "failure_category": t.failure_category,
             "severity": t.severity,
             "failed_step_index": t.failed_step_index,

@@ -51,9 +51,9 @@ export default function DiagnosticsPage() {
 
   const selectTrace = (trace: RCATrace) => {
     setSelectedTrace(trace);
-    // Look up the session_id from the interaction
-    if (trace.interaction_id) {
-      // We need to find the session_id — for now use the trace data
+    if (trace.session_id) {
+      setSelectedSessionId(trace.session_id);
+    } else {
       setSelectedSessionId(null);
     }
   };
